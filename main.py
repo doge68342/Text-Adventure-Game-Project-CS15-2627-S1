@@ -19,10 +19,10 @@ class Room:
             
         return False
 
-    def refreshRooms():
-        for x in range(3):
-            for y in range(3):
-                Room(x, y, "EMPTY")
+    def generateRooms(xDim, yDim, xOff, yOff):
+        for x in range(xDim):
+            for y in range(yDim):
+                Room(x + xOff, y + yOff, "EMPTY")
 
     def checkForWall(x1, y1, x2, y2):
         if (x1, y1, x2, y2) in Room.walls or (x2, y2, x1, y1) in Room.walls:
@@ -39,6 +39,11 @@ class Room:
         for room in Room.rooms:
             if room.xPos == xPos and room.yPos == yPos:
                 return room.type
+
+    def getRoom(xPos, yPos):
+        for room in Room.rooms:
+            if room.xPos == xPos and room.yPos == yPos:
+                return room
 
 
 
@@ -87,13 +92,16 @@ class Player:
                     opt = input("Do you pick up the key? - ")
                     if opt == "yes" or opt == "y":
                         inv["KEY"] += 1
+                        Room.getRoom(self.xPos, self.yPos).type = "EMPTY"
                         print(f"You picked up the key ({inv["KEY"]} keys available)")
                         break
+
                     elif opt == "no" or opt == "n":
                         print("You leave the key on the ground")
                         break
+
                     else:
-                        print("Invalid input, please try again")
+                        print("Invalid input (try yes or no)")
 
         xTar = self.xPos + xDel
         yTar = self.yPos + yDel
@@ -118,15 +126,16 @@ class Player:
                             wall = Wall.getWall(qerWallPos)
                             wall.type = "OPENDOOR"
                             inv["KEY"] -= 1
+
                             self.xPos += xDel
                             self.yPos += yDel
-                            print(f"Player unlocked and moved through a door at {self.xPos}, {self.yPos}")
+                            print(f"Player unlocked and moved through a door to {self.xPos}, {self.yPos}")
                             break
                         elif opt == "no" or opt == "n":
                             print("The door stays locked")
                             break
                         else:
-                            print("Invalid Operation")
+                            print("Invalid input (try yes or no)")
 
                 elif inv["KEY"] < 1:
                     print("You do not have a key to open this door")
@@ -134,13 +143,13 @@ class Player:
 
             else:
 
-                print("There is a wall in the way of the player moving that way, try a different direction")
+                print(f"There is a wall in the way of the player moving that way, try a different direction, player stays at {self.xPos}, {self.yPos}")
         else:
-            print("There is a wall in the way of the player moving that way, try a different direction")
+            print(f"There is a wall in the way of the player moving that way, try a different direction, player stays at {self.xPos}, {self.yPos}")
     
 player = Player(1, 1)
 
-Room.refreshRooms()
+Room.generateRooms(3, 3, 0, 0)
 Room.setRoomType(2, 1, "KEYPICKUP")
 
 Wall((1, 1, 2, 1), "SOLID")
@@ -149,6 +158,7 @@ Wall((0, 1, 0 ,2), "SOLID")
 Wall((1, 0, 0, 0), "SOLID")
 Wall((0, 1, 0, 0), "LOCKEDDOOR")
 
+Room.generateRooms(3, 3, 2, 0)
 
 
 while True:
@@ -166,3 +176,4 @@ while True:
         player.move(0, -1)
     else:
         print("Invalid direction (try forward, right, left, or backward, or try inputing their first letter)")
+    print()
