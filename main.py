@@ -3,16 +3,6 @@ import random
 choiceCount = 0
 inv = {"KEY": 0}
 
-class RoomType:
-    roomtypes = []
-
-    def __init__(self, type, rarity):
-        self.type = type
-        self.rarity = rarity
-        RoomType.roomtypes.append(self)
-
-
-
 class Room:
     rooms = []
 
@@ -32,13 +22,23 @@ class Room:
     def refreshRooms():
         for x in range(3):
             for y in range(3):
-                Room(x, y, "nill")
+                Room(x, y, "EMPTY")
 
     def checkForWall(x1, y1, x2, y2):
         if (x1, y1, x2, y2) in Room.walls or (x2, y2, x1, y1) in Room.walls:
             return True
         else:
             return False
+
+    def setRoomType(xPos, yPos, type):
+        for room in Room.rooms:
+            if room.xPos == xPos and room.yPos == yPos:
+                room.type = type
+
+    def getRoomType(xPos, yPos):
+        for room in Room.rooms:
+            if room.xPos == xPos and room.yPos == yPos:
+                return room.type
 
 
 
@@ -54,12 +54,10 @@ class Wall:
         
     def checkForWall(pos):
         if pos in Wall.wallPoss or (pos[2], pos[3], pos[0], pos[1]) in Wall.wallPoss:
-            type = "nill"
             for wall in Wall.walls:
                 if wall.pos == pos or wall.pos == (pos[2], pos[3], pos[0], pos[1]):
-                    type = wall.type
-
-            return type
+                    return wall.type
+            return False
         else:
             return False
 
@@ -69,22 +67,34 @@ class Wall:
                 return wall
 
         print("No wall stupid")
+        
 
-
-    
-Room.refreshRooms()
-Wall((1, 1, 2, 1), "SOLID")
-Wall((1, 1, 0, 1), "OPENDOOR")
-Wall((0, 1, 0 ,2), "SOLID")
-Wall((1, 0, 0, 0), "SOLID")
-Wall((0, 1, 0, 0), "LOCKEDDOOR")
 
 class Player:
     def __init__(self, xPos, yPos):
         self.xPos = xPos
         self.yPos = yPos
 
+    
+
     def move(self, xDel, yDel):
+        def step(xDel, yDel): # im so sorry
+            self.xPos += xDel
+            self.yPos += yDel
+            if Room.getRoomType(self.xPos, self.yPos) == "KEYPICKUP":
+                print("There is a key on the ground of this room")
+                while True:
+                    opt = input("Do you pick up the key? - ")
+                    if opt == "yes" or opt == "y":
+                        inv["KEY"] += 1
+                        print(f"You picked up the key ({inv["KEY"]} keys available)")
+                        break
+                    elif opt == "no" or opt == "n":
+                        print("You leave the key on the ground")
+                        break
+                    else:
+                        print("Invalid input, please try again")
+
         xTar = self.xPos + xDel
         yTar = self.yPos + yDel
         if Room.exists(self.xPos + xDel, self.yPos + yDel):
@@ -92,13 +102,11 @@ class Player:
             qerWall = Wall.checkForWall(qerWallPos)
 
             if not qerWall:
-                self.xPos += xDel
-                self.yPos += yDel
+                step(xDel, yDel)
                 print(f"Moved the player to the room at {self.xPos}, {self.yPos}")
 
             elif qerWall == "OPENDOOR":
-                self.xPos += xDel
-                self.yPos += yDel
+                step(xDel, yDel)
                 print(f"Player moved through an open door to the room at {self.xPos}, {self.yPos}")
 
             elif qerWall == "LOCKEDDOOR":
@@ -132,6 +140,14 @@ class Player:
     
 player = Player(1, 1)
 
+Room.refreshRooms()
+Room.setRoomType(2, 1, "KEYPICKUP")
+
+Wall((1, 1, 2, 1), "SOLID")
+Wall((1, 1, 0, 1), "OPENDOOR")
+Wall((0, 1, 0 ,2), "SOLID")
+Wall((1, 0, 0, 0), "SOLID")
+Wall((0, 1, 0, 0), "LOCKEDDOOR")
 
 
 
