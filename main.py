@@ -11,7 +11,6 @@ class Room:
         self.yPos = yPos
         self.type = type
         Room.rooms.append(self)
-
     def exists(xQer, yQer):
         for room in Room.rooms:
             if room.xPos == xQer and room.yPos == yQer:
@@ -158,7 +157,9 @@ Wall((0, 1, 0 ,2), "SOLID")
 Wall((1, 0, 0, 0), "SOLID")
 Wall((0, 1, 0, 0), "LOCKEDDOOR")
 
-Room.generateRooms(3, 3, 2, 0)
+Room.generateRooms(3, 3, 0, -3)
+Wall((1, 0, 1, -1), "SOLID")
+Wall((2, 0, 2, -1), "SOLID")
 
 
 while True:
