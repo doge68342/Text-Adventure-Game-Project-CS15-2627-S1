@@ -83,23 +83,23 @@ class Player:
     def spacQer(self):
         qerWallPosfor = (self.xPos, self.yPos, self.xPos + 1, self.yPos)
         qerWallfor = Wall.checkForWall(qerWallPosfor)
-        if Room.exists(self.xPos + 1, self.yPos) or not qerWallfor == "SOLID":
-            print("Player can move forward")
+        if not Room.exists(self.xPos + 1, self.yPos) or qerWallfor == "SOLID":
+            print("Player cannot move forward")
 
         qerWallPosbac = (self.xPos, self.yPos, self.xPos - 1, self.yPos)
         qerWallbac = Wall.checkForWall(qerWallPosbac)
-        if Room.exists(self.xPos -1, self.yPos) or not qerWallbac == "SOLID":
-            print("Player can move backward")
+        if not Room.exists(self.xPos -1, self.yPos) or qerWallbac == "SOLID":
+            print("Player cannot move backward")
 
         qerWallPosrit = (self.xPos, self.yPos, self.xPos, self.yPos + 1)
         qerWallrit = Wall.checkForWall(qerWallPosrit)
-        if Room.exists(self.xPos, self.yPos + 1) or not qerWallrit == "SOLID":
-            print("Player can move right")
+        if not Room.exists(self.xPos, self.yPos + 1) or qerWallrit == "SOLID":
+            print("Player cannot move right")
 
         qerWallPoslef = (self.xPos, self.yPos, self.xPos, self.yPos - 1)
         qerWalllef = Wall.checkForWall(qerWallPoslef)
-        if Room.exists(self.xPos , self.yPos - 1) or not qerWalllef == "SOLID":
-            print("Player can move left")
+        if not Room.exists(self.xPos, self.yPos - 1) or qerWalllef == "SOLID":
+            print("Player cannot move left")
 
 
     def move(self, xDel, yDel):
