@@ -81,25 +81,51 @@ class Player:
             print(f"You have {inv['KEYORNATE']} ornate key(s)")
 
     def spacQer(self):
-        qerWallPosfor = (self.xPos, self.yPos, self.xPos + 1, self.yPos)
-        qerWallfor = Wall.checkForWall(qerWallPosfor)
-        if not Room.exists(self.xPos + 1, self.yPos) or qerWallfor == "SOLID":
-            print("Player cannot move forward")
+        validDirs = []
+        qerWallPos = (self.xPos, self.yPos, self.xPos + 1, self.yPos)
+        qerWall = Wall.checkForWall(qerWallPos)
+        if Room.exists(self.xPos + 1, self.yPos) and not qerWall or qerWall == "OPENDOOR":
+            validDirs.append("forward")
 
-        qerWallPosbac = (self.xPos, self.yPos, self.xPos - 1, self.yPos)
-        qerWallbac = Wall.checkForWall(qerWallPosbac)
-        if not Room.exists(self.xPos -1, self.yPos) or qerWallbac == "SOLID":
-            print("Player cannot move backward")
+        qerWallPos = (self.xPos, self.yPos, self.xPos - 1, self.yPos)
+        qerWall = Wall.checkForWall(qerWallPos)
+        if Room.exists(self.xPos -1, self.yPos) and not qerWall or qerWall == "OPENDOOR":
+            validDirs.append("backward")
 
-        qerWallPosrit = (self.xPos, self.yPos, self.xPos, self.yPos + 1)
-        qerWallrit = Wall.checkForWall(qerWallPosrit)
-        if not Room.exists(self.xPos, self.yPos + 1) or qerWallrit == "SOLID":
-            print("Player cannot move right")
+        qerWallPos = (self.xPos, self.yPos, self.xPos, self.yPos + 1)
+        qerWall = Wall.checkForWall(qerWallPos)
+        if Room.exists(self.xPos, self.yPos + 1) and not qerWall or qerWall == "OPENDOOR":
+            validDirs.append("right")
 
-        qerWallPoslef = (self.xPos, self.yPos, self.xPos, self.yPos - 1)
-        qerWalllef = Wall.checkForWall(qerWallPoslef)
-        if not Room.exists(self.xPos, self.yPos - 1) or qerWalllef == "SOLID":
-            print("Player cannot move left")
+        qerWallPos = (self.xPos, self.yPos, self.xPos, self.yPos - 1)
+        qerWall = Wall.checkForWall(qerWallPos)
+        if Room.exists(self.xPos, self.yPos - 1) and not qerWall or qerWall == "OPENDOOR":
+            validDirs.append("left")
+
+        out = "Player can move "
+        if len(validDirs) == 1:
+            out += validDirs[0]
+        elif len(validDirs) == 2:
+            out += validDirs[0]
+            out += " or "
+            out += validDirs[1]
+        elif len(validDirs) == 3:
+            out += validDirs[0]
+            out += ", "
+            out += validDirs[1]
+            out += " or "
+            out += validDirs[2]
+        elif len(validDirs) == 4:
+            out += validDirs[0]
+            out += ", "
+            out += validDirs[1]
+            out += ", "
+            out += validDirs[2]
+            out += " or "
+            out += validDirs[3]
+        else:
+            out += "nowhere (uh oh)"   
+        print(out)
 
 
     def move(self, xDel, yDel):
