@@ -1,7 +1,8 @@
 import random
 
 choiceCount = 0
-inv = {"KEY": 0}
+inv = {"KEYBASIC": 0,
+       "KEYORNATE": 0}
 
 class Room:
     rooms = []
@@ -22,12 +23,6 @@ class Room:
         for x in range(xDim):
             for y in range(yDim):
                 Room(x + xOff, y + yOff, "EMPTY")
-
-    def checkForWall(x1, y1, x2, y2):
-        if (x1, y1, x2, y2) in Room.walls or (x2, y2, x1, y1) in Room.walls:
-            return True
-        else:
-            return False
 
     def setRoomType(xPos, yPos, type):
         for room in Room.rooms:
@@ -79,20 +74,46 @@ class Player:
         self.xPos = xPos
         self.yPos = yPos
 
-    
+    def invQer(self):
+        if inv["KEYBASIC"] > 0:
+            print(f"You have {inv['KEYBASIC']} basic key(s)")
+        if inv["KEYORNATE"] > 0:
+            print(f"You have {inv['KEYORNATE']} ornate key(s)")
+
+    def spacQer(self):
+        qerWallPosfor = (self.xPos, self.yPos, self.xPos + 1, self.yPos)
+        qerWallfor = Wall.checkForWall(qerWallPosfor)
+        if Room.exists(self.xPos + 1, self.yPos) or not qerWallfor == "SOLID":
+            print("Player can move forward")
+
+        qerWallPosbac = (self.xPos, self.yPos, self.xPos - 1, self.yPos)
+        qerWallbac = Wall.checkForWall(qerWallPosbac)
+        if Room.exists(self.xPos -1, self.yPos) or not qerWallbac == "SOLID":
+            print("Player can move backward")
+
+        qerWallPosrit = (self.xPos, self.yPos, self.xPos, self.yPos + 1)
+        qerWallrit = Wall.checkForWall(qerWallPosrit)
+        if Room.exists(self.xPos, self.yPos + 1) or not qerWallrit == "SOLID":
+            print("Player can move right")
+
+        qerWallPoslef = (self.xPos, self.yPos, self.xPos, self.yPos - 1)
+        qerWalllef = Wall.checkForWall(qerWallPoslef)
+        if Room.exists(self.xPos , self.yPos - 1) or not qerWalllef == "SOLID":
+            print("Player can move left")
+
 
     def move(self, xDel, yDel):
         def step(xDel, yDel): # im so sorry
             self.xPos += xDel
             self.yPos += yDel
-            if Room.getRoomType(self.xPos, self.yPos) == "KEYPICKUP":
+            if Room.getRoomType(self.xPos, self.yPos) == "KEYBASICPICKUP":
                 print("There is a key on the ground of this room")
                 while True:
                     opt = input("Do you pick up the key? - ")
                     if opt == "yes" or opt == "y":
-                        inv["KEY"] += 1
+                        inv["KEYBASIC"] += 1
                         Room.getRoom(self.xPos, self.yPos).type = "EMPTY"
-                        print(f"You picked up the key ({inv["KEY"]} keys available)")
+                        print(f"You picked up the key ({inv["KEYBASIC"]} keys available)")
                         break
 
                     elif opt == "no" or opt == "n":
@@ -102,6 +123,28 @@ class Player:
                     else:
                         print("Invalid input (try yes or no)")
 
+            if Room.getRoomType(self.xPos, self.yPos) == "EMPTYPEDESTAL":
+                print("There is an empty pedestal in this room")
+
+            if Room.getRoomType(self.xPos, self.yPos) == "KEYORNATEPICKUP":
+                print("There is a ornate golden key on a small wooden pedestal in this room")
+                while True:
+                    opt = input("Do you pick up the ornate key? - ")
+                    if opt == "yes" or opt == "y":
+                        inv["KEYORNATE"] += 1
+                        Room.getRoom(self.xPos, self.yPos).type = "EMPTYPEDESTAL"
+                        print(f"You picked up the ornate key ({inv["KEYORNATE"]} keys available)")
+                        break
+
+                    elif opt == "no" or opt == "n":
+                        print("You leave the ornate key on the pedestal")
+                        break
+
+                    else:
+                        print("Invalid input (try yes or no)")
+
+    
+
         xTar = self.xPos + xDel
         yTar = self.yPos + yDel
         if Room.exists(self.xPos + xDel, self.yPos + yDel):
@@ -109,26 +152,25 @@ class Player:
             qerWall = Wall.checkForWall(qerWallPos)
 
             if not qerWall:
+                print(f"Moved the player to the room at {self.xPos + xDel}, {self.yPos + yDel}")
                 step(xDel, yDel)
-                print(f"Moved the player to the room at {self.xPos}, {self.yPos}")
 
             elif qerWall == "OPENDOOR":
+                print(f"Player moved through an open door to the room at {self.xPos + xDel}, {self.yPos + yDel}")
                 step(xDel, yDel)
-                print(f"Player moved through an open door to the room at {self.xPos}, {self.yPos}")
 
-            elif qerWall == "LOCKEDDOOR":
+
+            elif qerWall == "LOCKEDDOORBASIC":
                 print("There is a locked door in the way of the player moving that way, try to unlock it or try a different direction")
-                if inv["KEY"] > 0:
+                if inv["KEYBASIC"] > 0:
                     while True:
-                        opt = input(f"Do you unlock it? ({inv["KEY"]} keys available) - ")
+                        opt = input(f"Do you unlock it? ({inv["KEYBASIC"]} keys available) - ")
                         if opt == "yes" or opt == "y":
                             wall = Wall.getWall(qerWallPos)
                             wall.type = "OPENDOOR"
-                            inv["KEY"] -= 1
-
-                            self.xPos += xDel
-                            self.yPos += yDel
-                            print(f"Player unlocked and moved through a door to {self.xPos}, {self.yPos}")
+                            inv["KEYBASIC"] -= 1
+                            print(f"Player unlocked and moved through a door to {self.xPos + xDel}, {self.yPos + yDel}")
+                            step(xDel, yDel)
                             break
                         elif opt == "no" or opt == "n":
                             print("The door stays locked")
@@ -136,9 +178,29 @@ class Player:
                         else:
                             print("Invalid input (try yes or no)")
 
-                elif inv["KEY"] < 1:
+                elif inv["KEYBASIC"] < 1:
                     print("You do not have a key to open this door")
 
+            elif qerWall == "LOCKEDDOORORNATE":
+                print("There is an ornate locked door in the way of the player moving that way, try to unlock it or try a different direction")
+                if inv["KEYORNATE"] > 0:
+                    while True:
+                        opt = input(f"Do you unlock it? ({inv["KEYORNATE"]} keys available) - ")
+                        if opt == "yes" or opt == "y":
+                            wall = Wall.getWall(qerWallPos)
+                            wall.type = "OPENDOOR"
+                            inv["KEYORNATE"] -= 1
+                            print(f"Player unlocked and moved through a door to {self.xPos + xDel}, {self.yPos + yDel}")
+                            step(xDel, yDel)
+                            break
+                        elif opt == "no" or opt == "n":
+                            print("The ornate door stays locked")
+                            break
+                        else:
+                            print("Invalid input (try yes or no)")
+
+                elif inv["KEYORNATE"] < 1:
+                    print("You do not have a key to open this door")
 
             else:
 
@@ -149,32 +211,37 @@ class Player:
 player = Player(1, 1)
 
 Room.generateRooms(3, 3, 0, 0)
-Room.setRoomType(2, 1, "KEYPICKUP")
+Room.setRoomType(2, 1, "KEYBASICPICKUP")
+Room.setRoomType(0, 0, "KEYORNATEPICKUP")
 
 Wall((1, 1, 2, 1), "SOLID")
 Wall((1, 1, 0, 1), "OPENDOOR")
 Wall((0, 1, 0 ,2), "SOLID")
 Wall((1, 0, 0, 0), "SOLID")
-Wall((0, 1, 0, 0), "LOCKEDDOOR")
+Wall((0, 1, 0, 0), "LOCKEDDOORBASIC")
 
-Room.generateRooms(3, 3, 0, -3)
-Wall((1, 0, 1, -1), "SOLID")
-Wall((2, 0, 2, -1), "SOLID")
+Room.generateRooms(1, 1, 1, 3)
+Wall((1, 2, 1, 3), "LOCKEDDOORORNATE")
+Room.generateRooms(3, 3, 0, 4)
+
 
 
 while True:
     choiceCount += 1
     print(f">-----------------< Move {choiceCount} >-----------------<")
-    dir = input("Where do you go? - ")
+    opt = input("Where do you go? - ")
 
-    if dir == "forward" or dir == "for" or dir == "f" or dir == "w":
+    if opt == "forward" or opt == "for" or opt == "f" or opt == "w":
         player.move(1, 0)
-    elif dir == "right" or dir == "rit" or dir == "r" or dir == "d":
+    elif opt == "right" or opt == "rit" or opt == "r" or opt == "d":
         player.move(0, 1)
-    elif dir == "backward" or dir == "bac" or dir == "b" or dir == "s":
+    elif opt == "backward" or opt == "bac" or opt == "b" or opt == "s":
         player.move(-1, 0)
-    elif dir == "left" or dir == "lef" or dir == "l" or dir == "a":
+    elif opt == "left" or opt == "lef" or opt == "l" or opt == "a":
         player.move(0, -1)
+    elif opt == "querry" or opt == "qer" or opt == "q":
+        player.invQer()
+        player.spacQer()
     else:
-        print("Invalid direction (try forward, right, left, or backward, or try inputing their first letter)")
+        print("Invalid input (try forward, right, left, backward, or query, or try inputing their first letters)")
     print()
