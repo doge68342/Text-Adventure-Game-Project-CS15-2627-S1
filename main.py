@@ -1,8 +1,12 @@
 import random
 
 choiceCount = 0
+maxHealth = 40
 inv = {"KEYBASIC": 0,
-       "KEYORNATE": 0}
+       "KEYORNATE": 0,
+       "SWORD": 0,
+       "HEALTH": maxHealth,
+       "FEMURBONE": 0}
 
 class Room:
     rooms = []
@@ -79,6 +83,12 @@ class Player:
             print(f"You have {inv['KEYBASIC']} basic key(s)")
         if inv["KEYORNATE"] > 0:
             print(f"You have {inv['KEYORNATE']} ornate key(s)")
+        if inv["SWORD"] > 0:
+            print(f"You have {inv['SWORD']} sword(s)")
+        if inv["FEMURBONE"] > 0:
+                    print(f"You have {inv['FEMURBONE']} femur bones(s)")
+        print(f"You have {inv["HEALTH"]} / {maxHealth} health left")
+        
 
     def spacQer(self):
         validDirs = []
@@ -133,6 +143,7 @@ class Player:
             self.xPos += xDel
             self.yPos += yDel
             if Room.getRoomType(self.xPos, self.yPos) == "KEYBASICPICKUP":
+                print()
                 print("There is a key on the ground of this room")
                 while True:
                     opt = input("Do you pick up the key? - ")
@@ -149,10 +160,8 @@ class Player:
                     else:
                         print("Invalid input (try yes or no)")
 
-            if Room.getRoomType(self.xPos, self.yPos) == "EMPTYPEDESTAL":
-                print("There is an empty pedestal in this room")
-
             if Room.getRoomType(self.xPos, self.yPos) == "KEYORNATEPICKUP":
+                print()
                 print("There is a ornate golden key on a small wooden pedestal in this room")
                 while True:
                     opt = input("Do you pick up the ornate key? - ")
@@ -169,6 +178,78 @@ class Player:
                     else:
                         print("Invalid input (try yes or no)")
 
+            if Room.getRoomType(self.xPos, self.yPos) == "SWORDPICKUP":
+                print()
+                print("There is a worn steel sword on a rack in this room")
+                while True:
+                    opt = input("Do you take the sword? - ")
+                    if opt == "yes" or opt == "y":
+                        inv["SWORD"] += 1
+                        Room.getRoom(self.xPos, self.yPos).type = "EMPTYRACK"
+                        print(f"You took the sword ({inv["SWORD"]} sword)")
+                        break
+
+                    elif opt == "no" or opt == "n":
+                        print("You leave the sword on the rack")
+                        break
+
+                    else:
+                        print("Invalid input (try yes or no)")
+
+            if Room.getRoomType(self.xPos, self.yPos) == "SKELETONENCOUNTER":
+                print()
+                print("An armed reanimated skelton attacks you when you enter this room")
+                skelMaxHealth = 20
+                skelHealth = skelMaxHealth
+                skelDamage = 2
+                while True:
+                    print("You can attack (a), defend (d), or flee (f)")
+                    opt = input("What action do you take against the skeleton? - ")
+                    isDefending = False
+                    if opt == "attack" or opt == "a":
+                        turnDmg = 0
+                        if inv["SWORD"] > 0:
+                            turnDmg = 3
+                        else:
+                            turnDmg = 1
+                        skelHealth -= turnDmg
+                        print(f"Skeleton took {turnDmg} damage ({skelHealth} / {skelMaxHealth})")
+
+                    elif opt == "defend" or opt == "d":
+                        isDefending = True
+                        print("You focus on defending yourself, you will take less damage when it attacks")
+                    elif opt == "flee" or opt == "f":
+                        print("Coward")
+                        break
+                    else:
+                        print("Invalid input, please try again")
+
+                    if isDefending:
+                        inv["HEALTH"] -= skelDamage / 2
+                        print(f"You block and take {skelDamage / 2} damage from the skeleton ({inv['HEALTH']} / {maxHealth} remaining)")
+                    else:
+                        inv["HEALTH"] -= skelDamage
+                        print(f"You take {skelDamage} damage from the skeleton ({inv['HEALTH']} / {maxHealth} remaining)")
+
+                    if skelHealth <= 0:
+                        inv["FEMURBONE"] += 1
+                        print(f"You defeat the skeleton and pickup femur bone ({inv["FEMURBONE"]} femur bone(s))")
+                        break
+
+                    if inv["HEALTH"] <= 0:
+                        print("You failed to defeat the skeleton and die, please restart program")
+                        while True:
+                            input("Womp")
+
+                    print()
+            
+                      
+
+            if Room.getRoomType(self.xPos, self.yPos) == "EMPTYPEDESTAL":
+                print("There is an empty pedestal in this room")
+
+            if Room.getRoomType(self.xPos, self.yPos) == "EMPTYRACK":
+                print("There is an empty sword rack in this room")
     
 
         xTar = self.xPos + xDel
@@ -246,9 +327,10 @@ Wall((0, 1, 0 ,2), "SOLID")
 Wall((1, 0, 0, 0), "SOLID")
 Wall((0, 1, 0, 0), "LOCKEDDOORBASIC")
 
-Room.generateRooms(1, 1, 1, 3)
+Room.generateRooms(1, 4, 1, 3)
+Room.setRoomType(1, 4, "SWORDPICKUP")
+Room.setRoomType(1, 6, "SKELETONENCOUNTER")
 Wall((1, 2, 1, 3), "LOCKEDDOORORNATE")
-Room.generateRooms(3, 3, 0, 4)
 
 
 
@@ -265,7 +347,7 @@ while True:
         player.move(-1, 0)
     elif opt == "left" or opt == "lef" or opt == "l" or opt == "a":
         player.move(0, -1)
-    elif opt == "querry" or opt == "qer" or opt == "q":
+    elif opt == "query" or opt == "qer" or opt == "q":
         player.invQer()
         player.spacQer()
     else:
