@@ -23,7 +23,7 @@ As the player completes actions, the game should remember what has happened and 
 * [x] Your game uses a **state machine** to keep track of the player's current room or location.
 * [x] Your game contains **at least 10 different rooms or locations**.
 * [x] The rooms are connected in a **non-linear layout**. The player must have choices about where to travel rather than simply moving through rooms in one fixed order.
-* [ ] Each room provides a clear description when the player enters it.
+* [x] Each room provides a clear description when the player enters it.
 * [x] Each room provides the player with appropriate actions or choices.
 * [x] The player can move between rooms using text input.
 * [x] Your game has a clear objective and a clear ending.
@@ -45,36 +45,36 @@ Possible information to track could include:
 
 ### Changing Choices
 
-* [ ] The available choices in a room change when appropriate based on what has already happened.
-* [ ] Actions that can only happen once are removed or changed after they are completed.
+* [x] The available choices in a room change when appropriate based on what has already happened.
+* [x] Actions that can only happen once are removed or changed after they are completed.
 
 For example, if the player chooses to take a key, the game should remember that the key has been taken. Returning to the room should no longer give the player the option to take the same key again.
 
 ### Challenge or Obstacle
 
-* [ ] Your game includes **at least one obstacle that requires the player to provide a specific input before they can continue**.
-* [ ] The obstacle must require the player to discover, calculate, remember, or determine the correct answer.
-* [ ] Successfully completing the obstacle must affect the state of the game.
+* [x] Your game includes **at least one obstacle that requires the player to provide a specific input before they can continue**.
+* [x] The obstacle must require the player to discover, calculate, remember, or determine the correct answer.
+* [x] Successfully completing the obstacle must affect the state of the game.
 
 Examples could include calculating the answer to a problem given by a character, discovering a password in another room, finding a code that opens a locked door, or collecting information needed to answer a question later.
 
 ### User Input and Output
 
 * [ ] The program clearly explains what is happening to the player.
-* [ ] The player is given clear instructions about what they can enter.
-* [ ] The program **validates all user input before using it**.
-* [ ] Invalid input does not cause the program to crash.
-* [ ] Invalid input provides useful feedback and allows the player to try again.
-* [ ] The game should be **error-proof during normal gameplay**.
+* [x] The player is given clear instructions about what they can enter.
+* [x] The program **validates all user input before using it**.
+* [x] Invalid input does not cause the program to crash.
+* [x] Invalid input provides useful feedback and allows the player to try again.
+* [x] The game should be **error-proof during normal gameplay**.
 
 ### Structured Programming
 
 Your program must demonstrate a clear understanding of the three major control structures used in structured programming:
 
-* [ ] **Sequence:** Instructions are organized in a logical order so that actions happen at the correct time.
-* [ ] **Selection:** `if`, `elif`, and `else` statements are used to make decisions based on user choices and the current state of the game.
-* [ ] **Iteration:** Loops are used appropriately to repeat gameplay and/or validate user input.
-* [ ] **Functions:** Functions are used to organize the program into manageable sections and avoid unnecessary repeated code.
+* [x] **Sequence:** Instructions are organized in a logical order so that actions happen at the correct time.
+* [x] **Selection:** `if`, `elif`, and `else` statements are used to make decisions based on user choices and the current state of the game.
+* [x] **Iteration:** Loops are used appropriately to repeat gameplay and/or validate user input.
+* [x] **Functions:** Functions are used to organize the program into manageable sections and avoid unnecessary repeated code.
 
 ## Creativity
 

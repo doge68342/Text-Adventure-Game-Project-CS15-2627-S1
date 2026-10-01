@@ -107,23 +107,45 @@ class Player:
         validDirs = []
         qerWallPos = (self.xPos, self.yPos, self.xPos + 1, self.yPos)
         qerWall = Wall.checkForWall(qerWallPos)
-        if Room.exists(self.xPos + 1, self.yPos) and not qerWall or qerWall == "OPENDOOR":
-            validDirs.append("forward")
+        qerWall = Wall.checkForWall(qerWallPos)
+        if Room.exists(self.xPos + 1, self.yPos):
+            if not qerWall or qerWall == "OPENDOOR":
+                validDirs.append("forward")
+            elif qerWall == "LOCKEDDOORBASIC":
+                print("There is a locked door infront of you unlockable with a basic key")
+            elif qerWall == "LOCKEDDOORORNATE":
+                print("There is a locked door infront of you unlockable with an ornate key")
 
         qerWallPos = (self.xPos, self.yPos, self.xPos - 1, self.yPos)
         qerWall = Wall.checkForWall(qerWallPos)
-        if Room.exists(self.xPos -1, self.yPos) and not qerWall or qerWall == "OPENDOOR":
-            validDirs.append("backward")
+        if Room.exists(self.xPos -1, self.yPos):
+            if not qerWall or qerWall == "OPENDOOR":
+                validDirs.append("backward")
+            elif qerWall == "LOCKEDDOORBASIC":
+                print("There is a locked door behind you unlockable with a basic key")
+            elif qerWall == "LOCKEDDOORORNATE":
+                print("There is a locked door behind you unlockable with an ornate key")
 
         qerWallPos = (self.xPos, self.yPos, self.xPos, self.yPos + 1)
         qerWall = Wall.checkForWall(qerWallPos)
-        if Room.exists(self.xPos, self.yPos + 1) and not qerWall or qerWall == "OPENDOOR":
-            validDirs.append("right")
+        if Room.exists(self.xPos, self.yPos + 1):
+            if not qerWall or qerWall == "OPENDOOR":
+                validDirs.append("right")
+            elif qerWall == "LOCKEDDOORBASIC":
+                print("There is a locked door to your right unlockable with a basic key")
+            elif qerWall == "LOCKEDDOORORNATE":
+                print("There is a locked door to your right unlockable with an ornate key")
 
         qerWallPos = (self.xPos, self.yPos, self.xPos, self.yPos - 1)
         qerWall = Wall.checkForWall(qerWallPos)
-        if Room.exists(self.xPos, self.yPos - 1) and not qerWall or qerWall == "OPENDOOR":
-            validDirs.append("left")
+        qerWall = Wall.checkForWall(qerWallPos)
+        if Room.exists(self.xPos, self.yPos - 1):
+            if not qerWall or qerWall == "OPENDOOR":
+                validDirs.append("left")
+            elif qerWall == "LOCKEDDOORBASIC":
+                print("There is a locked door to your left unlockable with a basic key")
+            elif qerWall == "LOCKEDDOORORNATE":
+                print("There is a locked door to your left unlockable with an ornate key")
 
         out = "Player can move "
         if len(validDirs) == 1:
@@ -255,7 +277,8 @@ class Player:
 
                     print()
             
-                      
+            if Room.getRoomType(self.xPos, self.yPos) == "EMPTY":
+                            print("There is nothing in this room")
 
             if Room.getRoomType(self.xPos, self.yPos) == "EMPTYPEDESTAL":
                 print("There is an empty pedestal in this room")
@@ -365,7 +388,7 @@ while True:
         player.invQer()
         player.spacQer()
     elif opt == "whats going on im so lost":
-        print("the red circle is at 1, 1, forward increases x, right increases y")
+        print("the red circle is at your spawn, forward moves you up, right moves you to the right")
         img.show()
     else:
         print("Invalid input (try forward, right, left, backward, query, or whats going on im so lost, or try inputing their first letters)")
