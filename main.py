@@ -6,7 +6,7 @@ print("Defeat the super evil, evil skeleton made of evil bones")
 print()
 
 choiceCount = 0
-maxHealth = 40
+maxHealth = 20
 inv = {"KEYBASIC": 0,
        "KEYORNATE": 0,
        "SWORD": 0,
@@ -236,7 +236,8 @@ class Player:
                 print("An armed reanimated skelton attacks you when you enter this room")
                 skelMaxHealth = 20
                 skelHealth = skelMaxHealth
-                skelDamage = 2
+                skelDamage = 4
+                skelStaggered = False
                 while True:
                     print("You can attack (a), defend (d), or flee (f)")
                     opt = input("What action do you take against the skeleton? - ")
@@ -247,12 +248,18 @@ class Player:
                             turnDmg = 3
                         else:
                             turnDmg = 1
+
+                        if skelStaggered:
+                            turnDmg *= 2.5
+                            skelStaggered = False
                         skelHealth -= turnDmg
                         print(f"Skeleton took {turnDmg} damage ({skelHealth} / {skelMaxHealth})")
+                        print("Skeleton regains its footing")
 
                     elif opt == "defend" or opt == "d":
                         isDefending = True
-                        print("You focus on defending yourself, you will take less damage when it attacks")
+                        skelStaggered = True
+                        print("You focus on defending yourself, you stagger it and it will deal less damage when it attacks you")
                     elif opt == "flee" or opt == "f":
                         print("Coward")
                         break

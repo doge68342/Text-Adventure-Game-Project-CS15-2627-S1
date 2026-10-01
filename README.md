@@ -60,7 +60,7 @@ Examples could include calculating the answer to a problem given by a character,
 
 ### User Input and Output
 
-* [ ] The program clearly explains what is happening to the player.
+* [x] The program clearly explains what is happening to the player.
 * [x] The player is given clear instructions about what they can enter.
 * [x] The program **validates all user input before using it**.
 * [x] Invalid input does not cause the program to crash.
