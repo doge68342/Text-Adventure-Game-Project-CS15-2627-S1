@@ -3,8 +3,10 @@ A text based adventure game run through the terminal
 """
 
 from PIL import Image
-print("cd into the directory of the main.py pls")
-image = Image.open("Map-v2.png")
+try:
+    image = Image.open("Map-v2.png")
+except FileNotFoundError:
+    print("cd into the directory of main.py or the program wont be able to open the map image")
 
 print("Defeat the super evil, evil skeleton made of evil bones")
 print()
