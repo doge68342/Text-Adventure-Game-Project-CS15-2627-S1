@@ -1,5 +1,7 @@
+"""
+A text based adventure game run through the terminal
+"""
 
-# from pathLib import path
 from PIL import Image
 print("cd into the directory of the main.py pls")
 image = Image.open("Map-v2.png")
