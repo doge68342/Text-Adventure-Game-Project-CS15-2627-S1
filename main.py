@@ -1,83 +1,162 @@
-import random
+
+# from pathLib import path
 from PIL import Image
-img = Image.open("Map-v2.png")
+print("cd into the directory of the main.py pls")
+image = Image.open("Map-v2.png")
 
 print("Defeat the super evil, evil skeleton made of evil bones")
 print()
 
-choiceCount = 0
-maxHealth = 20
-inv = {"KEYBASIC": 0,
-       "KEYORNATE": 0,
-       "SWORD": 0,
-       "HEALTH": maxHealth,
-       "FEMURBONE": 0}
+choice_count = 0
+MAX_HEALTH = 20
+inventory = {"KEYBASIC": 0,
+             "KEYORNATE": 0,
+             "SWORD": 0,
+             "HEALTH": MAX_HEALTH,
+             "FEMURBONE": 0}
 
-def win():
+def win_game() -> None:
+    """
+    Call when win
+    """
     while True:
-        input(f"Horray{chr(33)} You defeated the skeleton and won{chr(33)} You can now close the program")
+        input(f"horay{chr(33)} You defeated the skeleton and won{chr(33)} You can now close the program")
 
-def loose():
+def lose_game() -> None:
+    """
+    Call when lose
+    """
     while True:
         input("You failed to defeat the skeleton and die, please restart program")
 
 class Room:
+    """
+    A room that the player can move too and from
+
+    :cvar rooms: table of all rooms made
+    """
     rooms = []
 
-    def __init__(self, xPos, yPos, type):
-        self.xPos = xPos
-        self.yPos = yPos
-        self.type = type
+    def __init__(self, x_pos, y_pos, room_type):
+        """
+        Initializes the room
+
+        :param x_pos: x position
+        :param y_pos: y position
+        :param room_type: the type of room
+        """
+        self.x_pos = x_pos
+        self.y_pos = y_pos
+        self.room_type = room_type
         Room.rooms.append(self)
-    def exists(xQer, yQer):
+    def exists(x_qer: int, y_qer: int) -> bool:
+        """
+        Check if room at x, y exists and return true or false if so
+        :param x_qer: x
+        :param y_qer: y
+        :return: return if the room exists
+        """
         for room in Room.rooms:
-            if room.xPos == xQer and room.yPos == yQer:
+            if room.x_pos == x_qer and room.y_pos == y_qer:
                 return True
             
         return False
 
-    def generateRooms(xDim, yDim, xOff, yOff):
-        for x in range(xDim):
-            for y in range(yDim):
-                Room(x + xOff, y + yOff, "EMPTY")
+    def generate_rooms(x_dim: int, y_dim: int, x_off: int, y_off: int) -> None:
+        """
+        Generates a room at x_dim, y_dim, with offset x_off, y_off
 
-    def setRoomType(xPos, yPos, type):
-        for room in Room.rooms:
-            if room.xPos == xPos and room.yPos == yPos:
-                room.type = type
+        :param x_dim: the x side length of the room cluster
+        :param y_dim: the y side length of the room cluster
+        :param x_off: the x offset
+        :param y_off: the y offset
+        """
+        for x in range(x_dim):
+            for y in range(y_dim):
+                Room(x + x_off, y + y_off, "EMPTY")
 
-    def getRoomType(xPos, yPos):
-        for room in Room.rooms:
-            if room.xPos == xPos and room.yPos == yPos:
-                return room.type
+    def set_room_type(x_pos: int, y_pos: int, room_type: str) -> None:
+        """
+        Sets room at x_pos, y_pos to room_type
 
-    def getRoom(xPos, yPos):
+        :param x_pos: x position of room
+        :param y_pos: y position of room
+        :param room_type: type of room to change x, y to
+        """
         for room in Room.rooms:
-            if room.xPos == xPos and room.yPos == yPos:
+            if room.x_pos == x_pos and room.y_pos == y_pos:
+                room.room_type = room_type
+
+    def get_room_type(x_pos: int, y_pos: int) -> str:
+        """
+        Return type of room at x_pos, y_pos
+
+        :param x_pos: x position of room
+        :param y_pos: y position of room
+        :return: the type of room
+        """
+        for room in Room.rooms:
+            if room.x_pos == x_pos and room.y_pos == y_pos:
+                return room.room_type
+
+    def get_room(x_pos: int, y_pos: int) -> "Room":
+        """
+        Return the room object at x_pos, y_pos
+
+        :param x_pos: x position of room
+        :param y_pos: y position of room
+        :return: room object (classy)
+        """
+        for room in Room.rooms:
+            if room.x_pos == x_pos and room.y_pos == y_pos:
                 return room
 
 
 
 class Wall:
-    walls = set()
-    wallPoss = set()
+    """
+    Defines wall that block the player from moving from a certain room to another
 
-    def __init__(self, pos, type):
+    :cvar walls: a set of all of the wall objects
+    :cvar wall_positions: all of the wall position tuples
+    """
+    walls = set()
+    wall_positions = set()
+
+    def __init__(self, pos, wall_type):
+        """
+        Initializes the wall object
+
+        :param pos: tuple of the two tooms that it blocks traversal between
+        :param wall_type: the type of wall
+        """
         self.pos = pos
-        self.type = type
+        self.wall_type = wall_type
         Wall.walls.add(self)
-        Wall.wallPoss.add(pos)
+        Wall.wall_positions.add(pos)
         
-    def checkForWall(pos):
-        if pos in Wall.wallPoss or (pos[2], pos[3], pos[0], pos[1]) in Wall.wallPoss:
+    def check_for_wall(pos: tuple) -> bool | str:
+        """
+        Checks for wall between two room defined by tuple (x1, y1, x2, y2)
+
+        :param pos: defines the two rooms that a wall is checked for between
+        :return: return false if no wall, but return the type if there is a wall
+        """
+        if pos in Wall.wall_positions or (pos[2], pos[3], pos[0], pos[1]) in Wall.wall_positions:
             for wall in Wall.walls:
                 if wall.pos == pos or wall.pos == (pos[2], pos[3], pos[0], pos[1]):
-                    return wall.type
+                    return wall.wall_type
             return False
         else:
             return False
 
-    def getWall(pos):
+    def get_wall(pos: tuple) -> "Wall":
+        """
+        Return wall object from wall defined by tuple (x1, y1, x2, y2)
+
+        :param pos: defines the two rooms that a wall is effective in
+        :return: return the wall object
+        """
         for wall in Wall.walls:
             if wall.pos == pos:
                 return wall
@@ -87,281 +166,307 @@ class Wall:
 
 
 class Player:
-    def __init__(self, xPos, yPos):
-        self.xPos = xPos
-        self.yPos = yPos
+    """
+    Player object
+    """
+    def __init__(self, x_pos: int, y_pos: int):
+        """
+        Player initialization
 
-    def invQer(self):
-        if inv["KEYBASIC"] > 0:
-            print(f"You have {inv['KEYBASIC']} basic key(s)")
-        if inv["KEYORNATE"] > 0:
-            print(f"You have {inv['KEYORNATE']} ornate key(s)")
-        if inv["SWORD"] > 0:
-            print(f"You have {inv['SWORD']} sword(s)")
-        if inv["FEMURBONE"] > 0:
-                    print(f"You have {inv['FEMURBONE']} femur bones(s)")
-        print(f"You have {inv["HEALTH"]} / {maxHealth} health left")
+        :param x_pos: the x position of where to spawn the player
+        :param y_pos: the y position of where to spawn the player
+        """
+        self.x_pos = x_pos
+        self.y_pos = y_pos
+
+    def inventory_query(self) -> None:
+        """
+        Print everything in players inventory
+        """
+        if inventory["KEYBASIC"] > 0:
+            print(f"You have {inventory['KEYBASIC']} basic key(s)")
+        if inventory["KEYORNATE"] > 0:
+            print(f"You have {inventory['KEYORNATE']} ornate key(s)")
+        if inventory["SWORD"] > 0:
+            print(f"You have {inventory['SWORD']} sword(s)")
+        if inventory["FEMURBONE"] > 0:
+            print(f"You have {inventory['FEMURBONE']} femur bones(s)")
+        print(f"You have {inventory["HEALTH"]} / {MAX_HEALTH} health left")
         
 
-    def spacQer(self):
-        validDirs = []
-        qerWallPos = (self.xPos, self.yPos, self.xPos + 1, self.yPos)
-        qerWall = Wall.checkForWall(qerWallPos)
-        qerWall = Wall.checkForWall(qerWallPos)
-        if Room.exists(self.xPos + 1, self.yPos):
-            if not qerWall or qerWall == "OPENDOOR":
-                validDirs.append("forward")
-            elif qerWall == "LOCKEDDOORBASIC":
-                print("There is a locked door infront of you unlockable with a basic key")
-            elif qerWall == "LOCKEDDOORORNATE":
-                print("There is a locked door infront of you unlockable with an ornate key")
+    def spatial_query(self) -> None:
+        """
+        prints directions available for the player to move and locked doors around them
+        """
+        valid_dirs = []
+        query_wall_pos = (self.x_pos, self.y_pos, self.x_pos + 1, self.y_pos)
+        query_wall = Wall.check_for_wall(query_wall_pos)
+        query_wall = Wall.check_for_wall(query_wall_pos)
+        if Room.exists(self.x_pos + 1, self.y_pos):
+            if not query_wall or query_wall == "OPENDOOR":
+                valid_dirs.append("forward")
+            elif query_wall == "LOCKEDDOORBASIC":
+                print("There is a locked door in front of you unlockable with a basic key")
+            elif query_wall == "LOCKEDDOORORNATE":
+                print("There is a locked door in front of you unlockable with an ornate key")
 
-        qerWallPos = (self.xPos, self.yPos, self.xPos - 1, self.yPos)
-        qerWall = Wall.checkForWall(qerWallPos)
-        if Room.exists(self.xPos -1, self.yPos):
-            if not qerWall or qerWall == "OPENDOOR":
-                validDirs.append("backward")
-            elif qerWall == "LOCKEDDOORBASIC":
+        query_wall_pos = (self.x_pos, self.y_pos, self.x_pos - 1, self.y_pos)
+        query_wall = Wall.check_for_wall(query_wall_pos)
+        if Room.exists(self.x_pos -1, self.y_pos):
+            if not query_wall or query_wall == "OPENDOOR":
+                valid_dirs.append("backward")
+            elif query_wall == "LOCKEDDOORBASIC":
                 print("There is a locked door behind you unlockable with a basic key")
-            elif qerWall == "LOCKEDDOORORNATE":
+            elif query_wall == "LOCKEDDOORORNATE":
                 print("There is a locked door behind you unlockable with an ornate key")
 
-        qerWallPos = (self.xPos, self.yPos, self.xPos, self.yPos + 1)
-        qerWall = Wall.checkForWall(qerWallPos)
-        if Room.exists(self.xPos, self.yPos + 1):
-            if not qerWall or qerWall == "OPENDOOR":
-                validDirs.append("right")
-            elif qerWall == "LOCKEDDOORBASIC":
+        query_wall_pos = (self.x_pos, self.y_pos, self.x_pos, self.y_pos + 1)
+        query_wall = Wall.check_for_wall(query_wall_pos)
+        if Room.exists(self.x_pos, self.y_pos + 1):
+            if not query_wall or query_wall == "OPENDOOR":
+                valid_dirs.append("right")
+            elif query_wall == "LOCKEDDOORBASIC":
                 print("There is a locked door to your right unlockable with a basic key")
-            elif qerWall == "LOCKEDDOORORNATE":
+            elif query_wall == "LOCKEDDOORORNATE":
                 print("There is a locked door to your right unlockable with an ornate key")
 
-        qerWallPos = (self.xPos, self.yPos, self.xPos, self.yPos - 1)
-        qerWall = Wall.checkForWall(qerWallPos)
-        qerWall = Wall.checkForWall(qerWallPos)
-        if Room.exists(self.xPos, self.yPos - 1):
-            if not qerWall or qerWall == "OPENDOOR":
-                validDirs.append("left")
-            elif qerWall == "LOCKEDDOORBASIC":
+        query_wall_pos = (self.x_pos, self.y_pos, self.x_pos, self.y_pos - 1)
+        query_wall = Wall.check_for_wall(query_wall_pos)
+        query_wall = Wall.check_for_wall(query_wall_pos)
+        if Room.exists(self.x_pos, self.y_pos - 1):
+            if not query_wall or query_wall == "OPENDOOR":
+                valid_dirs.append("left")
+            elif query_wall == "LOCKEDDOORBASIC":
                 print("There is a locked door to your left unlockable with a basic key")
-            elif qerWall == "LOCKEDDOORORNATE":
+            elif query_wall == "LOCKEDDOORORNATE":
                 print("There is a locked door to your left unlockable with an ornate key")
 
         out = "Player can move "
-        if len(validDirs) == 1:
-            out += validDirs[0]
-        elif len(validDirs) == 2:
-            out += validDirs[0]
+        if len(valid_dirs) == 1:
+            out += valid_dirs[0]
+        elif len(valid_dirs) == 2:
+            out += valid_dirs[0]
             out += " or "
-            out += validDirs[1]
-        elif len(validDirs) == 3:
-            out += validDirs[0]
+            out += valid_dirs[1]
+        elif len(valid_dirs) == 3:
+            out += valid_dirs[0]
             out += ", "
-            out += validDirs[1]
+            out += valid_dirs[1]
             out += " or "
-            out += validDirs[2]
-        elif len(validDirs) == 4:
-            out += validDirs[0]
+            out += valid_dirs[2]
+        elif len(valid_dirs) == 4:
+            out += valid_dirs[0]
             out += ", "
-            out += validDirs[1]
+            out += valid_dirs[1]
             out += ", "
-            out += validDirs[2]
+            out += valid_dirs[2]
             out += " or "
-            out += validDirs[3]
+            out += valid_dirs[3]
         else:
             out += "nowhere (uh oh)"   
         print(out)
 
 
-    def move(self, xDel, yDel):
-        def step(xDel, yDel): # im so sorry
-            self.xPos += xDel
-            self.yPos += yDel
-            if Room.getRoomType(self.xPos, self.yPos) == "KEYBASICPICKUP":
+    def move(self, x_delta: int, y_delta: int) -> None:
+        """
+        Attempts to move player x_delta, y_delta
+
+        :param x_delta: the x direction or difference
+        :param y_delta: the y direction or difference
+        """
+        def step(x_delta: int, y_delta: int) -> None:
+            """
+            Does move player x_delta, y_delta 
+            :param x_delta: the x direction or difference
+            :param y_delta: the y direction or difference
+            """
+            self.x_pos += x_delta
+            self.y_pos += y_delta
+            if Room.get_room_type(self.x_pos, self.y_pos) == "KEYBASICPICKUP":
                 print()
                 print("There is a key on the ground of this room")
                 while True:
-                    opt = input("Do you pick up the key? - ")
-                    if opt == "yes" or opt == "y":
-                        inv["KEYBASIC"] += 1
-                        Room.getRoom(self.xPos, self.yPos).type = "EMPTY"
-                        print(f"You picked up the key ({inv["KEYBASIC"]} keys available)")
+                    option = input("Do you pick up the key? - ")
+                    if option == "yes" or option == "y":
+                        inventory["KEYBASIC"] += 1
+                        Room.get_room(self.x_pos, self.y_pos).room_type = "EMPTY"
+                        print(f"You picked up the key ({inventory["KEYBASIC"]} keys available)")
                         break
 
-                    elif opt == "no" or opt == "n":
+                    elif option == "no" or option == "n":
                         print("You leave the key on the ground")
                         break
 
                     else:
                         print("Invalid input (try yes or no)")
 
-            if Room.getRoomType(self.xPos, self.yPos) == "KEYORNATEPICKUP":
+            if Room.get_room_type(self.x_pos, self.y_pos) == "KEYORNATEPICKUP":
                 print()
                 print("There is a ornate golden key on a small wooden pedestal in this room")
                 while True:
-                    opt = input("Do you pick up the ornate key? - ")
-                    if opt == "yes" or opt == "y":
-                        inv["KEYORNATE"] += 1
-                        Room.getRoom(self.xPos, self.yPos).type = "EMPTYPEDESTAL"
-                        print(f"You picked up the ornate key ({inv["KEYORNATE"]} keys available)")
+                    option = input("Do you pick up the ornate key? - ")
+                    if option == "yes" or option == "y":
+                        inventory["KEYORNATE"] += 1
+                        Room.get_room(self.x_pos, self.y_pos).room_type = "EMPTYPEDESTAL"
+                        print(f"You picked up the ornate key ({inventory["KEYORNATE"]} keys available)")
                         break
 
-                    elif opt == "no" or opt == "n":
+                    elif option == "no" or option == "n":
                         print("You leave the ornate key on the pedestal")
                         break
 
                     else:
                         print("Invalid input (try yes or no)")
 
-            if Room.getRoomType(self.xPos, self.yPos) == "SWORDPICKUP":
+            if Room.get_room_type(self.x_pos, self.y_pos) == "SWORDPICKUP":
                 print()
                 print("There is a worn steel sword on a rack in this room")
                 while True:
-                    opt = input("Do you take the sword? - ")
-                    if opt == "yes" or opt == "y":
-                        inv["SWORD"] += 1
-                        Room.getRoom(self.xPos, self.yPos).type = "EMPTYRACK"
-                        print(f"You took the sword ({inv["SWORD"]} sword)")
+                    option = input("Do you take the sword? - ")
+                    if option == "yes" or option == "y":
+                        inventory["SWORD"] += 1
+                        Room.get_room(self.x_pos, self.y_pos).room_type = "EMPTYRACK"
+                        print(f"You took the sword ({inventory["SWORD"]} sword)")
                         break
 
-                    elif opt == "no" or opt == "n":
+                    elif option == "no" or option == "n":
                         print("You leave the sword on the rack")
                         break
 
                     else:
                         print("Invalid input (try yes or no)")
 
-            if Room.getRoomType(self.xPos, self.yPos) == "SKELETONENCOUNTER":
+            if Room.get_room_type(self.x_pos, self.y_pos) == "SKELETONENCOUNTER":
                 print()
-                print("An armed reanimated skelton attacks you when you enter this room")
-                skelMaxHealth = 20
-                skelHealth = skelMaxHealth
-                skelDamage = 4
-                skelStaggered = False
+                print("An armed reanimated skeleton attacks you when you enter this room")
+                skeleton_max_health = 20
+                skel_health = skeleton_max_health
+                skel_damage = 4
+                skel_staggered = False
                 while True:
                     print("You can attack (a), defend (d), or flee (f)")
-                    opt = input("What action do you take against the skeleton? - ")
-                    isDefending = False
-                    if opt == "attack" or opt == "a":
-                        turnDmg = 0
-                        if inv["SWORD"] > 0:
-                            turnDmg = 3
+                    option = input("What action do you take against the skeleton? - ")
+                    is_defending = False
+                    if option == "attack" or option == "a":
+                        turn_damage = 0
+                        if inventory["SWORD"] > 0:
+                            turn_damage = 3
                         else:
-                            turnDmg = 1
+                            turn_damage = 1
 
-                        if skelStaggered:
-                            turnDmg *= 2.5
-                            skelStaggered = False
-                        skelHealth -= turnDmg
-                        print(f"Skeleton took {turnDmg} damage ({skelHealth} / {skelMaxHealth})")
+                        if skel_staggered:
+                            turn_damage *= 2.5
+                            skel_staggered = False
+                        skel_health -= turn_damage
+                        print(f"Skeleton took {turn_damage} damage ({skel_health} / {skeleton_max_health})")
                         print("Skeleton regains its footing")
 
-                    elif opt == "defend" or opt == "d":
-                        isDefending = True
-                        skelStaggered = True
+                    elif option == "defend" or option == "d":
+                        is_defending = True
+                        skel_staggered = True
                         print("You focus on defending yourself, you stagger it and it will deal less damage when it attacks you")
-                    elif opt == "flee" or opt == "f":
+                    elif option == "flee" or option == "f":
                         print("Coward")
                         break
                     else:
                         print("Invalid input, please try again")
 
-                    if isDefending:
-                        inv["HEALTH"] -= skelDamage / 2
-                        print(f"You block and take {skelDamage / 2} damage from the skeleton ({inv['HEALTH']} / {maxHealth} remaining)")
+                    if is_defending:
+                        inventory["HEALTH"] -= skel_damage / 2
+                        print(f"You block and take {skel_damage / 2} damage from the skeleton ({inventory['HEALTH']} / {MAX_HEALTH} remaining)")
                     else:
-                        inv["HEALTH"] -= skelDamage
-                        print(f"You take {skelDamage} damage from the skeleton ({inv['HEALTH']} / {maxHealth} remaining)")
+                        inventory["HEALTH"] -= skel_damage
+                        print(f"You take {skel_damage} damage from the skeleton ({inventory['HEALTH']} / {MAX_HEALTH} remaining)")
 
-                    if skelHealth <= 0:
-                        inv["FEMURBONE"] += 1
-                        print(f"You defeat the skeleton and pickup femur bone ({inv["FEMURBONE"]} femur bone(s))")
-                        win()
+                    if skel_health <= 0:
+                        inventory["FEMURBONE"] += 1
+                        print(f"You defeat the skeleton and pickup femur bone ({inventory["FEMURBONE"]} femur bone(s))")
+                        win_game()
                         break
 
-                    if inv["HEALTH"] <= 0:
-                        loose()
+                    if inventory["HEALTH"] <= 0:
+                        lose_game()
 
                     print()
             
-            if Room.getRoomType(self.xPos, self.yPos) == "EMPTY":
-                            print("There is nothing in this room")
+            if Room.get_room_type(self.x_pos, self.y_pos) == "EMPTY":
+                print("There is nothing in this room")
 
-            if Room.getRoomType(self.xPos, self.yPos) == "EMPTYPEDESTAL":
+            if Room.get_room_type(self.x_pos, self.y_pos) == "EMPTYPEDESTAL":
                 print("There is an empty pedestal in this room")
 
-            if Room.getRoomType(self.xPos, self.yPos) == "EMPTYRACK":
+            if Room.get_room_type(self.x_pos, self.y_pos) == "EMPTYRACK":
                 print("There is an empty sword rack in this room")
     
 
-        xTar = self.xPos + xDel
-        yTar = self.yPos + yDel
-        if Room.exists(self.xPos + xDel, self.yPos + yDel):
-            qerWallPos = (self.xPos, self.yPos, xTar, yTar)
-            qerWall = Wall.checkForWall(qerWallPos)
+        x_target = self.x_pos + x_delta
+        y_target = self.y_pos + y_delta
+        if Room.exists(self.x_pos + x_delta, self.y_pos + y_delta):
+            query_wall_pos = (self.x_pos, self.y_pos, x_target, y_target)
+            query_wall = Wall.check_for_wall(query_wall_pos)
 
-            if not qerWall:
-                print(f"Moved the player to the room at {self.xPos + xDel}, {self.yPos + yDel}")
-                step(xDel, yDel)
+            if not query_wall:
+                print(f"Moved the player to the room at {self.x_pos + x_delta}, {self.y_pos + y_delta}")
+                step(x_delta, y_delta)
 
-            elif qerWall == "OPENDOOR":
-                print(f"Player moved through an open door to the room at {self.xPos + xDel}, {self.yPos + yDel}")
-                step(xDel, yDel)
+            elif query_wall == "OPENDOOR":
+                print(f"Player moved through an open door to the room at {self.x_pos + x_delta}, {self.y_pos + y_delta}")
+                step(x_delta, y_delta)
 
 
-            elif qerWall == "LOCKEDDOORBASIC":
+            elif query_wall == "LOCKEDDOORBASIC":
                 print("There is a locked door in the way of the player moving that way, try to unlock it or try a different direction")
-                if inv["KEYBASIC"] > 0:
+                if inventory["KEYBASIC"] > 0:
                     while True:
-                        opt = input(f"Do you unlock it? ({inv["KEYBASIC"]} keys available) - ")
-                        if opt == "yes" or opt == "y":
-                            wall = Wall.getWall(qerWallPos)
-                            wall.type = "OPENDOOR"
-                            inv["KEYBASIC"] -= 1
-                            print(f"Player unlocked and moved through a door to {self.xPos + xDel}, {self.yPos + yDel}")
-                            step(xDel, yDel)
+                        option = input(f"Do you unlock it? ({inventory["KEYBASIC"]} keys available) - ")
+                        if option == "yes" or option == "y":
+                            wall = Wall.get_wall(query_wall_pos)
+                            wall.wall_type = "OPENDOOR"
+                            inventory["KEYBASIC"] -= 1
+                            print(f"Player unlocked and moved through a door to {self.x_pos + x_delta}, {self.y_pos + y_delta}")
+                            step(x_delta, y_delta)
                             break
-                        elif opt == "no" or opt == "n":
+                        elif option == "no" or option == "n":
                             print("The door stays locked")
                             break
                         else:
                             print("Invalid input (try yes or no)")
 
-                elif inv["KEYBASIC"] < 1:
+                elif inventory["KEYBASIC"] < 1:
                     print("You do not have a key to open this door")
 
-            elif qerWall == "LOCKEDDOORORNATE":
+            elif query_wall == "LOCKEDDOORORNATE":
                 print("There is an ornate locked door in the way of the player moving that way, try to unlock it or try a different direction")
-                if inv["KEYORNATE"] > 0:
+                if inventory["KEYORNATE"] > 0:
                     while True:
-                        opt = input(f"Do you unlock it? ({inv["KEYORNATE"]} keys available) - ")
-                        if opt == "yes" or opt == "y":
-                            wall = Wall.getWall(qerWallPos)
-                            wall.type = "OPENDOOR"
-                            inv["KEYORNATE"] -= 1
-                            print(f"Player unlocked and moved through a door to {self.xPos + xDel}, {self.yPos + yDel}")
-                            step(xDel, yDel)
+                        option = input(f"Do you unlock it? ({inventory["KEYORNATE"]} keys available) - ")
+                        if option == "yes" or option == "y":
+                            wall = Wall.get_wall(query_wall_pos)
+                            wall.wall_type = "OPENDOOR"
+                            inventory["KEYORNATE"] -= 1
+                            print(f"Player unlocked and moved through a door to {self.x_pos + x_delta}, {self.y_pos + y_delta}")
+                            step(x_delta, y_delta)
                             break
-                        elif opt == "no" or opt == "n":
+                        elif option == "no" or option == "n":
                             print("The ornate door stays locked")
                             break
                         else:
                             print("Invalid input (try yes or no)")
 
-                elif inv["KEYORNATE"] < 1:
+                elif inventory["KEYORNATE"] < 1:
                     print("You do not have a key to open this door")
 
             else:
 
-                print(f"There is a wall in the way of the player moving that way, try a different direction, player stays at {self.xPos}, {self.yPos}")
+                print(f"There is a wall in the way of the player moving that way, try a different direction, player stays at {self.x_pos}, {self.y_pos}")
         else:
-            print(f"There is a wall in the way of the player moving that way, try a different direction, player stays at {self.xPos}, {self.yPos}")
+            print(f"There is a wall in the way of the player moving that way, try a different direction, player stays at {self.x_pos}, {self.y_pos}")
     
 player = Player(1, 1)
 
-Room.generateRooms(3, 3, 0, 0)
-Room.setRoomType(2, 1, "KEYBASICPICKUP")
-Room.setRoomType(0, 0, "KEYORNATEPICKUP")
+Room.generate_rooms(3, 3, 0, 0)
+Room.set_room_type(2, 1, "KEYBASICPICKUP")
+Room.set_room_type(0, 0, "KEYORNATEPICKUP")
 
 Wall((1, 1, 2, 1), "SOLID")
 Wall((1, 1, 0, 1), "OPENDOOR")
@@ -369,34 +474,34 @@ Wall((0, 1, 0 ,2), "SOLID")
 Wall((1, 0, 0, 0), "SOLID")
 Wall((0, 1, 0, 0), "LOCKEDDOORBASIC")
 
-Room.generateRooms(1, 1, 1, -1)
-Room.setRoomType(1, -1, "SWORDPICKUP")
+Room.generate_rooms(1, 1, 1, -1)
+Room.set_room_type(1, -1, "SWORDPICKUP")
 
-Room.generateRooms(1, 2, 1, 3)
-Room.setRoomType(1, 4, "SKELETONENCOUNTER")
+Room.generate_rooms(1, 2, 1, 3)
+Room.set_room_type(1, 4, "SKELETONENCOUNTER")
 Wall((1, 2, 1, 3), "LOCKEDDOORORNATE")
 
 
 
 while True:
-    choiceCount += 1
-    print(f">-----------------< Move {choiceCount} >-----------------<")
-    opt = input("Where do you go? - ")
+    choice_count += 1
+    print(f">-----------------< Move {choice_count} >-----------------<")
+    option = input("Where do you go? - ")
 
-    if opt == "forward" or opt == "for" or opt == "f" or opt == "w":
+    if option == "forward" or option == "for" or option == "f" or option == "w":
         player.move(1, 0)
-    elif opt == "right" or opt == "rit" or opt == "r" or opt == "d":
+    elif option == "right" or option == "rit" or option == "r" or option == "d":
         player.move(0, 1)
-    elif opt == "backward" or opt == "bac" or opt == "b" or opt == "s":
+    elif option == "backward" or option == "bac" or option == "b" or option == "s":
         player.move(-1, 0)
-    elif opt == "left" or opt == "lef" or opt == "l" or opt == "a":
+    elif option == "left" or option == "lef" or option == "l" or option == "a":
         player.move(0, -1)
-    elif opt == "query" or opt == "qer" or opt == "q":
-        player.invQer()
-        player.spacQer()
-    elif opt == "whats going on im so lost":
+    elif option == "query" or option == "qer" or option == "q":
+        player.inventory_query()
+        player.spatial_query()
+    elif option == "whats going on im so lost":
         print("the red circle is at your spawn, forward moves you up, right moves you to the right")
-        img.show()
+        image.show()
     else:
         print("Invalid input (try forward, right, left, backward, query, or whats going on im so lost, or try inputing their first letters)")
     print()
