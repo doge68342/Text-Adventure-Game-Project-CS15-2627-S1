@@ -3,13 +3,11 @@ A text based adventure game run through the terminal
 """
 
 from PIL import Image
+
 try:
     image = Image.open("Map-v2.png")
 except FileNotFoundError:
     print("cd into the directory of main.py or the program wont be able to open the map image")
-
-print("Defeat the super evil, evil skeleton made of evil bones")
-print()
 
 choice_count = 0
 MAX_HEALTH = 20
@@ -18,6 +16,9 @@ inventory = {"KEYBASIC": 0,
              "SWORD": 0,
              "HEALTH": MAX_HEALTH,
              "FEMURBONE": 0}
+
+print("Defeat the super evil, evil skeleton made of evil bones")
+print()
 
 def win_game() -> None:
     """
